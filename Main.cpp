@@ -6,16 +6,16 @@ const wchar_t Calculate[] = L"kalkulator";
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-HWND hEditResult; // Pole tekstowe na wynik
+HWND hEditResult; 
 
-double firstNumber = 0.0;       // Pierwsza liczba
-double secondNumber = 0.0;      // Druga liczba
-int currentOperation = 0;       // Obecny operator
+double firstNumber = 0.0;       
+double secondNumber = 0.0;      
+int currentOperation = 0;       
 
 void SetResultText(HWND hwnd, double value)
 {
     wchar_t buffer[256];
-    swprintf_s(buffer, 256, L"%.2f", value); // Konwersja double do stringa z dwoma miejscami po przecinku
+    swprintf_s(buffer, 256, L"%.2f", value); 
     SetWindowText(hwnd, buffer);
 }
 
@@ -24,18 +24,18 @@ void AppendText(HWND hwnd, const wchar_t* text)
     wchar_t buffer[256];
     GetWindowText(hwnd, buffer, 256);
 
-    // Jeœli pole tekstowe pokazuje 0, zast¹p ca³kowicie pole tekstowe
+    
     if (wcscmp(buffer, L"0") == 0)
     {
-        SetWindowText(hwnd, text); // Zast¹p ca³kowicie pole tekstowe
+        SetWindowText(hwnd, text); 
     }
     else
     {
-        // Dodaj tekst na koñcu
+        
         wchar_t newText[256];
-        wcscpy_s(newText, 256, buffer); // Skopiuj dotychczasowy tekst
-        wcscat_s(newText, 256, text);    // Dodaj nowy tekst
-        SetWindowText(hwnd, newText);    // Ustaw nowy tekst
+        wcscpy_s(newText, 256, buffer); 
+        wcscat_s(newText, 256, text);    
+        SetWindowText(hwnd, newText);    
     }
 }
 
@@ -85,26 +85,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        // Utwórz pole tekstowe
+        
         hEditResult = CreateWindowEx(0, L"EDIT", L"0",
             WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
             20, 20, 250, 40, hwnd, NULL, GetModuleHandle(NULL), NULL);
 
-        // Tworzenie przycisków (cyfry 0-9 i operacje)
+        
         const wchar_t* buttonLabels[] = { L"7", L"8", L"9", L"+",
                                            L"4", L"5", L"6", L"-",
                                            L"1", L"2", L"3", L"*",
                                            L"0", L"C", L"=", L"/",
-                                           L"," }; // Przycisk przecinka
+                                           L"," }; 
         int buttonIds[] = { 1007, 1008, 1009, 1010,
                             1004, 1005, 1006, 1011,
                             1001, 1002, 1003, 1012,
                             1000, 1013, 1014, 1015,
-                            1016 }; // ID dla przycisku przecinka
+                            1016 }; 
 
         int xPos = 20, yPos = 80;
 
-        // Tworzenie przycisków dla cyfr i operatorów
+        
         for (int i = 0; i < 17; i++)
         {
             CreateWindowEx(0, L"BUTTON", buttonLabels[i],
@@ -112,7 +112,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 xPos, yPos, 50, 50, hwnd, (HMENU)buttonIds[i], GetModuleHandle(NULL), NULL);
 
             xPos += 60;
-            if ((i + 1) % 4 == 0) // Przenoszenie do nastêpnego wiersza po 4 przyciskach
+            if ((i + 1) % 4 == 0) 
             {
                 xPos = 20;
                 yPos += 60;
@@ -127,57 +127,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         wchar_t buffer[256];
         GetWindowText(hEditResult, buffer, 256);
 
-        if (wmId >= 1000 && wmId <= 1009)  // Obs³uga cyfr (0-9)
+        if (wmId >= 1000 && wmId <= 1009)  
         {
             wchar_t text[2];
             swprintf_s(text, 2, L"%d", wmId - 1000);
             AppendText(hEditResult, text);
         }
-        else if (wmId == 1016) // Obs³uga przecinka
+        else if (wmId == 1016) 
         {
-            if (wcschr(buffer, L',') == NULL) // Sprawdzenie, czy przecinek ju¿ istnieje
+            if (wcschr(buffer, L',') == NULL) 
             {
                 AppendText(hEditResult, L",");
             }
         }
-        else if (wmId == 1010 || wmId == 1011 || wmId == 1012 || wmId == 1015)  // Operatorzy (+, -, *, /)
+        else if (wmId == 1010 || wmId == 1011 || wmId == 1012 || wmId == 1015)  
         {
-            // Zamiana przecinka na kropkê w przypadku, gdy u¿ytkownik u¿ywa zmiennoprzecinkowych
+            
             for (int i = 0; buffer[i] != '\0'; i++) {
                 if (buffer[i] == L',') {
-                    buffer[i] = L'.'; // Zmiana przecinka na kropkê
+                    buffer[i] = L'.'; 
                 }
             }
 
-            firstNumber = _wtof(buffer);  // Zapisanie pierwszej liczby
-            currentOperation = wmId;      // Zapisanie operatora
-            SetWindowText(hEditResult, L"0"); // Resetowanie pola tekstowego, aby wprowadziæ drug¹ liczbê
+            firstNumber = _wtof(buffer);  
+            currentOperation = wmId;     
+            SetWindowText(hEditResult, L"0"); 
         }
-        else if (wmId == 1014)  // Obs³uga przycisku "="
+        else if (wmId == 1014)  
         {
-            // Zamiana przecinka na kropkê w przypadku, gdy u¿ytkownik u¿ywa zmiennoprzecinkowych
+            
             for (int i = 0; buffer[i] != '\0'; i++) {
                 if (buffer[i] == L',') {
-                    buffer[i] = L'.'; // Zmiana przecinka na kropkê
+                    buffer[i] = L'.'; 
                 }
             }
 
-            secondNumber = _wtof(buffer); // Pobranie drugiej liczby
+            secondNumber = _wtof(buffer); 
             double result = 0.0;
 
             switch (currentOperation)
             {
-            case 1010:  // Dodawanie
+            case 1010:  
                 result = firstNumber + secondNumber;
 
                 break;
-            case 1011:  // Odejmowanie
+            case 1011:  
                 result = firstNumber - secondNumber;
                 break;
-            case 1012:  // Mno¿enie
+            case 1012:  
                 result = firstNumber * secondNumber;
                 break;
-            case 1015:  // Dzielenie
+            case 1015:  
                 if (secondNumber != 0)
                 {
                     result = firstNumber / secondNumber;
@@ -190,14 +190,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            SetResultText(hEditResult, result);  // Wyœwietlenie wyniku
+            SetResultText(hEditResult, result);  
         }
-        else if (wmId == 1013)  // Obs³uga przycisku "C" (Clear)
+        else if (wmId == 1013)  
         {
-            SetWindowText(hEditResult, L"0");  // Resetowanie wyniku
+            SetWindowText(hEditResult, L"0");  
             firstNumber = 0.0;
             secondNumber = 0.0;
-            currentOperation = 0; // Resetowanie operatora
+            currentOperation = 0; 
         }
         break;
     }
